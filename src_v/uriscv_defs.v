@@ -1,3 +1,27 @@
+//-----------------------------------------------------------------
+//                          uRISC-V CPU
+//                            V0.5.0
+//               github.com/ultraembedded/core_uriscv
+//                     Copyright 2015-2021
+//
+//                   admin@ultra-embedded.com
+//
+//                     License: Apache 2.0
+//-----------------------------------------------------------------
+// Copyright 2015-2021 github.com/ultraembedded
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//     http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//-----------------------------------------------------------------
 //--------------------------------------------------------------------
 // ALU Operations
 //--------------------------------------------------------------------
@@ -13,250 +37,6 @@
 `define RV_ALU_XOR                                 4'b1001
 `define RV_ALU_LESS_THAN                           4'b1010
 `define RV_ALU_LESS_THAN_SIGNED                    4'b1011
-
-//--------------------------------------------------------------------
-// Instructions Masks
-//--------------------------------------------------------------------
-// andi
-`define INST_ANDI 32'h7013
-`define INST_ANDI_MASK 32'h707f
-
-// addi
-`define INST_ADDI 32'h13
-`define INST_ADDI_MASK 32'h707f
-
-// slti
-`define INST_SLTI 32'h2013
-`define INST_SLTI_MASK 32'h707f
-
-// sltiu
-`define INST_SLTIU 32'h3013
-`define INST_SLTIU_MASK 32'h707f
-
-// ori
-`define INST_ORI 32'h6013
-`define INST_ORI_MASK 32'h707f
-
-// xori
-`define INST_XORI 32'h4013
-`define INST_XORI_MASK 32'h707f
-
-// slli
-`define INST_SLLI 32'h1013
-`define INST_SLLI_MASK 32'hfc00707f
-
-// srli
-`define INST_SRLI 32'h5013
-`define INST_SRLI_MASK 32'hfc00707f
-
-// srai
-`define INST_SRAI 32'h40005013
-`define INST_SRAI_MASK 32'hfc00707f
-
-// lui
-`define INST_LUI 32'h37
-`define INST_LUI_MASK 32'h7f
-
-// auipc
-`define INST_AUIPC 32'h17
-`define INST_AUIPC_MASK 32'h7f
-
-// add
-`define INST_ADD 32'h33
-`define INST_ADD_MASK 32'hfe00707f
-
-// sub
-`define INST_SUB 32'h40000033
-`define INST_SUB_MASK 32'hfe00707f
-
-// slt
-`define INST_SLT 32'h2033
-`define INST_SLT_MASK 32'hfe00707f
-
-// sltu
-`define INST_SLTU 32'h3033
-`define INST_SLTU_MASK 32'hfe00707f
-
-// xor
-`define INST_XOR 32'h4033
-`define INST_XOR_MASK 32'hfe00707f
-
-// or
-`define INST_OR 32'h6033
-`define INST_OR_MASK 32'hfe00707f
-
-// and
-`define INST_AND 32'h7033
-`define INST_AND_MASK 32'hfe00707f
-
-// sll
-`define INST_SLL 32'h1033
-`define INST_SLL_MASK 32'hfe00707f
-
-// srl
-`define INST_SRL 32'h5033
-`define INST_SRL_MASK 32'hfe00707f
-
-// sra
-`define INST_SRA 32'h40005033
-`define INST_SRA_MASK 32'hfe00707f
-
-// jal
-`define INST_JAL 32'h6f
-`define INST_JAL_MASK 32'h7f
-
-// jalr
-`define INST_JALR 32'h67
-`define INST_JALR_MASK 32'h707f
-
-// beq
-`define INST_BEQ 32'h63
-`define INST_BEQ_MASK 32'h707f
-
-// bne
-`define INST_BNE 32'h1063
-`define INST_BNE_MASK 32'h707f
-
-// blt
-`define INST_BLT 32'h4063
-`define INST_BLT_MASK 32'h707f
-
-// bge
-`define INST_BGE 32'h5063
-`define INST_BGE_MASK 32'h707f
-
-// bltu
-`define INST_BLTU 32'h6063
-`define INST_BLTU_MASK 32'h707f
-
-// bgeu
-`define INST_BGEU 32'h7063
-`define INST_BGEU_MASK 32'h707f
-
-// lb
-`define INST_LB 32'h3
-`define INST_LB_MASK 32'h707f
-
-// lh
-`define INST_LH 32'h1003
-`define INST_LH_MASK 32'h707f
-
-// lw
-`define INST_LW 32'h2003
-`define INST_LW_MASK 32'h707f
-
-// lbu
-`define INST_LBU 32'h4003
-`define INST_LBU_MASK 32'h707f
-
-// lhu
-`define INST_LHU 32'h5003
-`define INST_LHU_MASK 32'h707f
-
-// lwu
-`define INST_LWU 32'h6003
-`define INST_LWU_MASK 32'h707f
-
-// sb
-`define INST_SB 32'h23
-`define INST_SB_MASK 32'h707f
-
-// sh
-`define INST_SH 32'h1023
-`define INST_SH_MASK 32'h707f
-
-// sw
-`define INST_SW 32'h2023
-`define INST_SW_MASK 32'h707f
-
-// ecall
-`define INST_ECALL 32'h73
-`define INST_ECALL_MASK 32'hffffffff
-
-// ebreak
-`define INST_EBREAK 32'h100073
-`define INST_EBREAK_MASK 32'hffffffff
-
-// mret
-`define INST_MRET 32'h30200073
-`define INST_MRET_MASK 32'hffffffff
-
-// sret
-`define INST_SRET 32'h10200073
-`define INST_SRET_MASK 32'hffffffff
-
-// csrrw
-`define INST_CSRRW 32'h1073
-`define INST_CSRRW_MASK 32'h707f
-
-// csrrs
-`define INST_CSRRS 32'h2073
-`define INST_CSRRS_MASK 32'h707f
-
-// csrrc
-`define INST_CSRRC 32'h3073
-`define INST_CSRRC_MASK 32'h707f
-
-// csrrwi
-`define INST_CSRRWI 32'h5073
-`define INST_CSRRWI_MASK 32'h707f
-
-// csrrsi
-`define INST_CSRRSI 32'h6073
-`define INST_CSRRSI_MASK 32'h707f
-
-// csrrci
-`define INST_CSRRCI 32'h7073
-`define INST_CSRRCI_MASK 32'h707f
-
-// mul
-`define INST_MUL 32'h2000033
-`define INST_MUL_MASK 32'hfe00707f
-
-// mulh
-`define INST_MULH 32'h2001033
-`define INST_MULH_MASK 32'hfe00707f
-
-// mulhsu
-`define INST_MULHSU 32'h2002033
-`define INST_MULHSU_MASK 32'hfe00707f
-
-// mulhu
-`define INST_MULHU 32'h2003033
-`define INST_MULHU_MASK 32'hfe00707f
-
-// div
-`define INST_DIV 32'h2004033
-`define INST_DIV_MASK 32'hfe00707f
-
-// divu
-`define INST_DIVU 32'h2005033
-`define INST_DIVU_MASK 32'hfe00707f
-
-// rem
-`define INST_REM 32'h2006033
-`define INST_REM_MASK 32'hfe00707f
-
-// remu
-`define INST_REMU 32'h2007033
-`define INST_REMU_MASK 32'hfe00707f
-
-// fence
-`define INST_FENCE 32'hf
-`define INST_FENCE_MASK 32'h707f
-
-// sfence
-`define INST_SFENCE 32'h12000073
-`define INST_SFENCE_MASK 32'hfe007fff
-
-// fence.i
-`define INST_IFENCE 32'h100f
-`define INST_IFENCE_MASK 32'h707f
-
-//-----------------------------------------------------------------
-// Vectors
-//-----------------------------------------------------------------
-`define VECTOR_RESET                    32'h00000000
 
 //-----------------------------------------------------------------
 // Privilege levels
@@ -293,8 +73,6 @@
 `define SR_SUM          (1 << 18)
 `define SR_SUM_R        18
 
-`define SR_SMODE_MASK   (`SR_UIE | `SR_SIE | `SR_UPIE | `SR_SPIE | `SR_SPP | `SR_SUM)
-
 //-----------------------------------------------------------------
 // IRQ Numbers
 //-----------------------------------------------------------------
@@ -306,7 +84,7 @@
 `define IRQ_M_EXT    11
 `define IRQ_MIN      (`IRQ_S_SOFT)
 `define IRQ_MAX      (`IRQ_M_EXT + 1)
-`define IRQ_MASK     ((1 << `IRQ_M_EXT)   | (1 << `IRQ_S_EXT)   |                       (1 << `IRQ_M_TIMER) | (1 << `IRQ_S_TIMER) |                       (1 << `IRQ_M_SOFT)  | (1 << `IRQ_S_SOFT))
+`define IRQ_MASK     ((1 << `IRQ_M_EXT)   |                       (1 << `IRQ_M_TIMER) |                       (1 << `IRQ_M_SOFT))
 
 `define SR_IP_MSIP_R      `IRQ_M_SOFT
 `define SR_IP_MTIP_R      `IRQ_M_TIMER
@@ -333,9 +111,9 @@
     `define MISA_RVS      32'h00040000
     `define MISA_RVU      32'h00100000
 `define CSR_MEDELEG       12'h302
-`define CSR_MEDELEG_MASK  32'hFFFFFFFF
+`define CSR_MEDELEG_MASK  32'h0000FFFF
 `define CSR_MIDELEG       12'h303
-`define CSR_MIDELEG_MASK  32'hFFFFFFFF
+`define CSR_MIDELEG_MASK  32'h0000FFFF
 `define CSR_MIE           12'h304
 `define CSR_MIE_MASK      `IRQ_MASK
 `define CSR_MTVEC         12'h305
@@ -354,31 +132,14 @@
 `define CSR_MCYCLE_MASK   32'hFFFFFFFF
 `define CSR_MTIME         12'hc01
 `define CSR_MTIME_MASK    32'hFFFFFFFF
+`define CSR_MTIMEH        12'hc81
+`define CSR_MTIMEH_MASK   32'hFFFFFFFF
 `define CSR_MHARTID       12'hF14
 `define CSR_MHARTID_MASK  32'hFFFFFFFF
 
-//-----------------------------------------------------------------
-// CSR Registers - Supervisor
-//-----------------------------------------------------------------
-`define CSR_SSTATUS       12'h100
-`define CSR_SSTATUS_MASK  SR_SMODE_MASK
-`define CSR_SIE           12'h104
-`define CSR_SIE_MASK      32'hFFFFFFFF  // TODO:
-`define CSR_STVEC         12'h105
-`define CSR_STVEC_MASK    32'hFFFFFFFF
-`define CSR_SSCRATCH      12'h140
-`define CSR_SSCRATCH_MASK 32'hFFFFFFFF
-`define CSR_SEPC          12'h141
-`define CSR_SEPC_MASK     32'hFFFFFFFF
-`define CSR_SCAUSE        12'h142
-`define CSR_SCAUSE_MASK   32'hFFFFFFFF
-`define CSR_STVAL         12'h143
-`define CSR_STVAL_MASK    32'hFFFFFFFF
-`define CSR_SIP           12'h144
-`define CSR_SIP_MASK      32'hFFFFFFFF  // TODO:
-
-`define CSR_SATP          12'h180
-`define CSR_SATP_MASK     32'hFFFFFFFF
+// Non-std
+`define CSR_MTIMECMP        12'h7c0
+`define CSR_MTIMECMP_MASK   32'hFFFFFFFF
 
 //-----------------------------------------------------------------
 // CSR Registers - Simulation control
@@ -410,3 +171,30 @@
 `define MCAUSE_PAGE_FAULT_LOAD          ((0 << `MCAUSE_INT) | 13)
 `define MCAUSE_PAGE_FAULT_STORE         ((0 << `MCAUSE_INT) | 15)
 `define MCAUSE_INTERRUPT                (1 << `MCAUSE_INT)
+
+//-----------------------------------------------------------------
+// Debug defines for exception types
+//-----------------------------------------------------------------
+`define RV_EXCPN_W                        6
+`define RV_EXCPN_MISALIGNED_FETCH         6'h10
+`define RV_EXCPN_FAULT_FETCH              6'h11
+`define RV_EXCPN_ILLEGAL_INSTRUCTION      6'h12
+`define RV_EXCPN_BREAKPOINT               6'h13
+`define RV_EXCPN_MISALIGNED_LOAD          6'h14
+`define RV_EXCPN_FAULT_LOAD               6'h15
+`define RV_EXCPN_MISALIGNED_STORE         6'h16
+`define RV_EXCPN_FAULT_STORE              6'h17
+`define RV_EXCPN_ECALL                    6'h18
+`define RV_EXCPN_ECALL_U                  6'h18
+`define RV_EXCPN_ECALL_S                  6'h19
+`define RV_EXCPN_ECALL_H                  6'h1a
+`define RV_EXCPN_ECALL_M                  6'h1b
+`define RV_EXCPN_PAGE_FAULT_INST          6'h1c
+`define RV_EXCPN_PAGE_FAULT_LOAD          6'h1d
+`define RV_EXCPN_PAGE_FAULT_STORE         6'h1f
+`define RV_EXCPN_EXCEPTION                6'h10
+`define RV_EXCPN_INTERRUPT                6'h20
+`define RV_EXCPN_ERET                     6'h30
+`define RV_EXCPN_FENCE                    6'h31
+`define RV_EXCPN_TYPE_MASK                6'h30
+`define RV_EXCPN_SUBTYPE_R                3:0
