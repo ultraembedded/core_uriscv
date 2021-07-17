@@ -39,6 +39,7 @@ module riscv_core
     ,parameter SUPPORT_MCYCLE   = 1
     ,parameter SUPPORT_MTIMECMP = 0
     ,parameter SUPPORT_TRAP_INVALID_OPC = 1
+    ,parameter SUPPORT_BRAM_REGFILE = 0
     ,parameter ISR_VECTOR       = 32'h00000010
 )
 //-----------------------------------------------------------------
@@ -113,11 +114,12 @@ localparam           ADDR_W              = `ADDR_W;
 localparam           ADDR_PAD_W          = 0;
 
 // Current state
-localparam           STATE_W           = 2;
+localparam           STATE_W           = 3;
 localparam           STATE_RESET       = 0;
 localparam           STATE_FETCH_WB    = 1;
 localparam           STATE_EXEC        = 2;
 localparam           STATE_MEM         = 3;
+localparam           STATE_DECODE      = 4; // Only if SUPPORT_BRAM_REGFILE = 1
 
 //-----------------------------------------------------------------
 // Registers
@@ -158,9 +160,9 @@ wire [31:0]     rs1_val_w;
 wire [31:0]     rs2_val_w;
 
 // Opcode (memory bus)
-wire [31:0]     opcode_w       = mem_i_inst_i;
+wire [31:0]     opcode_w;
 
-wire            opcode_valid_w = mem_i_valid_i;
+wire            opcode_valid_w;
 wire            opcode_fetch_w = mem_i_rd_o & mem_i_accept_i;
 
 // Execute exception (or interrupt)
@@ -221,8 +223,20 @@ always @ (posedge clk_i)
 if (rd_writeen_w)
     reg_file[rd_q] <= rd_val_w;
 
-assign rs1_val_w = reg_file[rs1_w];
-assign rs2_val_w = reg_file[rs2_w];
+wire [31:0] rs1_val_gpr_w = reg_file[mem_i_inst_i[19:15]];
+wire [31:0] rs2_val_gpr_w = reg_file[mem_i_inst_i[24:20]];
+
+reg [31:0] rs1_val_gpr_q;
+reg [31:0] rs2_val_gpr_q;
+
+always @ (posedge clk_i)
+begin
+    rs1_val_gpr_q <= rs1_val_gpr_w;
+    rs2_val_gpr_q <= rs2_val_gpr_w;
+end
+
+assign rs1_val_w = SUPPORT_BRAM_REGFILE ? rs1_val_gpr_q : rs1_val_gpr_w;
+assign rs2_val_w = SUPPORT_BRAM_REGFILE ? rs2_val_gpr_q : rs2_val_gpr_w;
 
 // Writeback enable
 assign rd_writeen_w  = rd_wr_en_q & (state_q == STATE_FETCH_WB);
@@ -274,7 +288,7 @@ wire [31:0] x31_t6_w  = reg_file[31];
 //-----------------------------------------------------------------
 // Next State Logic
 //-----------------------------------------------------------------
-reg [1:0] next_state_r;
+reg [STATE_W-1:0] next_state_r;
 always @ *
 begin
     next_state_r = state_q;
@@ -289,7 +303,13 @@ begin
     STATE_FETCH_WB :
     begin
         if (opcode_fetch_w)
-            next_state_r    = STATE_EXEC;
+            next_state_r    = SUPPORT_BRAM_REGFILE ? STATE_DECODE : STATE_EXEC;
+    end
+    // DECODE - Used to access register file if SUPPORT_BRAM_REGFILE=1
+    STATE_DECODE:
+    begin
+        if (mem_i_valid_i)
+            next_state_r = STATE_EXEC;
     end
     // EXEC - Execute instruction (when ready)
     STATE_EXEC :
@@ -335,6 +355,27 @@ else
 //-----------------------------------------------------------------
 // Instruction Decode
 //-----------------------------------------------------------------
+reg [31:0] opcode_q;
+
+always @ (posedge clk_i )
+if (rst_i)
+    opcode_q <= 32'b0;
+else if (state_q == STATE_DECODE)
+    opcode_q <= mem_i_inst_i;
+
+reg opcode_valid_q;
+
+always @ (posedge clk_i )
+if (rst_i)
+    opcode_valid_q <= 1'b0;
+else if (state_q == STATE_DECODE)
+    opcode_valid_q <= mem_i_valid_i;
+else
+    opcode_valid_q <= 1'b0;
+
+assign opcode_w       = SUPPORT_BRAM_REGFILE ? opcode_q : mem_i_inst_i;
+assign opcode_valid_w = SUPPORT_BRAM_REGFILE ? opcode_valid_q : mem_i_valid_i;
+
 assign rs1_w        = opcode_w[19:15];
 assign rs2_w        = opcode_w[24:20];
 assign rd_w         = opcode_w[11:7];

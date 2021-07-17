@@ -8,7 +8,7 @@ Most instructions take 2 cycles, apart from load/stores which take 4+ cycles (de
 ## Features
 * 32-bit RISC-V ISA CPU core.
 * Support RISC-V’s integer (I), multiplication and division (M), and CSR instructions (Z) extensions (RV32IMZicsr).
-* Implements base ISA spec [v2.1](docs/riscv_isa_spec.pdf) and parts of the privileged ISA spec [v1.11](docs/riscv_privileged_spec.pdf).
+* Implements base ISA spec v2.1 and parts of the privileged ISA spec v1.11.
 * Supports machine mode privilege level only.
 * Configurable support for exceptions, interrupts, timers, multiplication, division and error traps.
 * Verified using random instruction sequences using cosimulation against [C++ ISA model](https://github.com/ultraembedded/exactstep).
@@ -66,18 +66,19 @@ Test:
 ```
 #### Configuration
 
-| Param Name                | Valid Range  | Description                                               |
-| ------------------------- |:------------:| ----------------------------------------------------------|
-| SUPPORT_MUL               | 1/0          | Enable multiplication instructions.                       |
-| SUPPORT_DIV               | 1/0          | Enable division instructions.                             |
-| SUPPORT_CSR               | 1/0          | Global enable for CSR/trap/interrupt handling.            |
-| SUPPORT_TRAP_LSU_ALIGN    | 1/0          | Enable unaligned memory load / store exception.           |
-| SUPPORT_MTVEC             | 1/0          | Configurable exception entry address.                     |
-| SUPPORT_MTVAL             | 1/0          | Support MTVAL CSR (holds bad addr / opcode).              |
-| SUPPORT_MIP_MIE           | 1/0          | Support MIE and MIP CSR registers.                        |
-| SUPPORT_MSCRATCH          | 1/0          | Support MSCRATCH CSR registers (SW read/write).           |
-| SUPPORT_MCYCLE            | 1/0          | Support cycle counter / rdtime.                           |
-| SUPPORT_MTIMECMP          | 1/0          | Non-std - support timer compare interrupt.                |
-| SUPPORT_TRAP_INVALID_OPC  | 1/0          | Fault on invalid opcodes (enable SW emulation).           |
-| ISR_VECTOR                | 'h0-FFFFFFFF | ISR addr = reset_vector + ISR_VECTOR (SUPPORT_MTVEC = 0). |
+| Param Name                | Valid Range  | Description                                                 |
+| ------------------------- |:------------:| ------------------------------------------------------------|
+| SUPPORT_MUL               | 1/0          | Enable multiplication instructions.                         |
+| SUPPORT_DIV               | 1/0          | Enable division instructions.                               |
+| SUPPORT_CSR               | 1/0          | Global enable for CSR/trap/interrupt handling.              |
+| SUPPORT_TRAP_LSU_ALIGN    | 1/0          | Enable unaligned memory load / store exception.             |
+| SUPPORT_MTVEC             | 1/0          | Configurable exception entry address.                       |
+| SUPPORT_MTVAL             | 1/0          | Support MTVAL CSR (holds bad addr / opcode).                |
+| SUPPORT_MIP_MIE           | 1/0          | Support MIE and MIP CSR registers.                          |
+| SUPPORT_MSCRATCH          | 1/0          | Support MSCRATCH CSR registers (SW read/write).             |
+| SUPPORT_MCYCLE            | 1/0          | Support cycle counter / rdtime.                             |
+| SUPPORT_MTIMECMP          | 1/0          | Non-std - support timer compare interrupt.                  |
+| SUPPORT_TRAP_INVALID_OPC  | 1/0          | Fault on invalid opcodes (enable SW emulation).             |
+| SUPPORT_BRAM_REGFILE      | 1/0          | FPGA BlockRAM friendly reg file (inst take 1 cycle longer). |
+| ISR_VECTOR                | 'h0-FFFFFFFF | ISR addr = reset_vector + ISR_VECTOR (SUPPORT_MTVEC = 0).   |
 
