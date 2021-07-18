@@ -815,32 +815,42 @@ u_csr
 //-----------------------------------------------------------------
 // Multiplier / Divider
 //-----------------------------------------------------------------
-uriscv_muldiv
-u_muldiv
-(
-    .clk_i(clk_i),
-    .rst_i(rst_i),
+generate
+if (SUPPORT_MUL != 0 || SUPPORT_DIV != 0)
+begin
+    uriscv_muldiv
+    u_muldiv
+    (
+        .clk_i(clk_i),
+        .rst_i(rst_i),
 
-    // Operation select
-    .valid_i(opcode_valid_w & ~exception_w),
-    .inst_mul_i(inst_mul_w),
-    .inst_mulh_i(inst_mulh_w),
-    .inst_mulhsu_i(inst_mulhsu_w),
-    .inst_mulhu_i(inst_mulhu_w),
-    .inst_div_i(inst_div_w),
-    .inst_divu_i(inst_divu_w),
-    .inst_rem_i(inst_rem_w),
-    .inst_remu_i(inst_remu_w),
+        // Operation select
+        .valid_i(opcode_valid_w & ~exception_w),
+        .inst_mul_i(inst_mul_w),
+        .inst_mulh_i(inst_mulh_w),
+        .inst_mulhsu_i(inst_mulhsu_w),
+        .inst_mulhu_i(inst_mulhu_w),
+        .inst_div_i(inst_div_w),
+        .inst_divu_i(inst_divu_w),
+        .inst_rem_i(inst_rem_w),
+        .inst_remu_i(inst_remu_w),
 
-    // Operands
-    .operand_ra_i(rs1_val_w),
-    .operand_rb_i(rs2_val_w),
+        // Operands
+        .operand_ra_i(rs1_val_w),
+        .operand_rb_i(rs2_val_w),
 
-    // Result
-    .stall_o(),
-    .ready_o(muldiv_ready_w),
-    .result_o(muldiv_result_w)
-);
+        // Result
+        .stall_o(),
+        .ready_o(muldiv_ready_w),
+        .result_o(muldiv_result_w)
+    );
+end
+else
+begin
+    assign muldiv_ready_w  = 1'b0;
+    assign muldiv_result_w = 32'b0;
+end
+endgenerate
 
 //-----------------------------------------------------------------
 // Unused
