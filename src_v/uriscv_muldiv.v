@@ -56,67 +56,79 @@ module uriscv_muldiv
 //-------------------------------------------------------------
 // Multiplier
 //-------------------------------------------------------------
+reg [32:0]   mul_operand_a_q;
+reg [32:0]   mul_operand_b_q;
+reg          mulhi_sel_q;
+
+//-------------------------------------------------------------
+// Multiplier
+//-------------------------------------------------------------
 wire [64:0]  mult_result_w;
-reg  [32:0]  operand_b;
-reg  [32:0]  operand_a;
-reg  [31:0]  result_r;
-reg  [31:0]  mult_result_q;
-reg          mult_busy_q;
+reg  [32:0]  operand_b_r;
+reg  [32:0]  operand_a_r;
+reg  [31:0]  mul_result_r;
 
-
-wire mult_inst_w    = inst_mul_i     || 
-                      inst_mulh_i    ||
-                      inst_mulhsu_i  ||
+wire mult_inst_w    = inst_mul_i     |
+                      inst_mulh_i    |
+                      inst_mulhsu_i  |
                       inst_mulhu_i;
 
 
-// Multiplier takes 1 full cycle, with the result appearing on 
-// writeback the cycle after...
-always @ (posedge clk_i )
-if (rst_i)
-    mult_busy_q <= 1'b0;
-else if (valid_i & !stall_o)
-    mult_busy_q <= mult_inst_w;
-else
-    mult_busy_q <= 1'b0;
-
 always @ *
 begin
     if (inst_mulhsu_i)
-        operand_a = {operand_ra_i[31], operand_ra_i[31:0]};
+        operand_a_r = {operand_ra_i[31], operand_ra_i[31:0]};
     else if (inst_mulh_i)
-        operand_a = {operand_ra_i[31], operand_ra_i[31:0]};
-    else // inst_mulhu_i || inst_mul_i
-        operand_a = {1'b0, operand_ra_i[31:0]};
+        operand_a_r = {operand_ra_i[31], operand_ra_i[31:0]};
+    else // MULHU || MUL
+        operand_a_r = {1'b0, operand_ra_i[31:0]};
 end
 
 always @ *
 begin
     if (inst_mulhsu_i)
-        operand_b = {1'b0, operand_rb_i[31:0]};
+        operand_b_r = {1'b0, operand_rb_i[31:0]};
     else if (inst_mulh_i)
-        operand_b = {operand_rb_i[31], operand_rb_i[31:0]};
-    else // inst_mulhu_i || inst_mul_i
-        operand_b = {1'b0, operand_rb_i[31:0]};
+        operand_b_r = {operand_rb_i[31], operand_rb_i[31:0]};
+    else // MULHU || MUL
+        operand_b_r = {1'b0, operand_rb_i[31:0]};
 end
 
-assign mult_result_w = {{ 32 {operand_a[32]}}, operand_a}*{{ 32 {operand_b[32]}}, operand_b};
+// Pipeline flops for multiplier
+always @(posedge clk_i )
+if (rst_i)
+begin
+    mul_operand_a_q <= 33'b0;
+    mul_operand_b_q <= 33'b0;
+    mulhi_sel_q     <= 1'b0;
+end
+else if (valid_i && mult_inst_w)
+begin
+    mul_operand_a_q <= operand_a_r;
+    mul_operand_b_q <= operand_b_r;
+    mulhi_sel_q     <= ~inst_mul_i;
+end
+else
+begin
+    mul_operand_a_q <= 33'b0;
+    mul_operand_b_q <= 33'b0;
+    mulhi_sel_q     <= 1'b0;
+end
+
+assign mult_result_w = {{ 32 {mul_operand_a_q[32]}}, mul_operand_a_q}*{{ 32 {mul_operand_b_q[32]}}, mul_operand_b_q};
 
 always @ *
 begin
-    result_r = mult_result_w[31:0];
-
-    if (inst_mulh_i | inst_mulhu_i| inst_mulhsu_i)
-        result_r = mult_result_w[63:32];
-    else if (inst_mul_i)
-        result_r = mult_result_w[31:0];
+    mul_result_r = mulhi_sel_q ? mult_result_w[63:32] : mult_result_w[31:0];
 end
 
-always @ (posedge clk_i )
+reg mul_busy_q;
+
+always @(posedge clk_i )
 if (rst_i)
-    mult_result_q <= 32'b0;
+    mul_busy_q <= 1'b0;
 else
-    mult_result_q <= result_r;
+    mul_busy_q <= valid_i & mult_inst_w;
 
 //-------------------------------------------------------------
 // Divider
@@ -205,7 +217,7 @@ end
 
 // Stall if divider logic is busy and new multiplier or divider op
 assign stall_o = (div_busy_q  & (mult_inst_w | div_rem_inst_w)) ||
-                 (mult_busy_q & div_rem_inst_w);
+                 (mul_busy_q & div_rem_inst_w);
 
 reg  [31:0]  result_q;
 reg          ready_q;
@@ -213,7 +225,7 @@ reg          ready_q;
 always @ (posedge clk_i )
 if (rst_i)
     ready_q <= 1'b0;
-else if (mult_busy_q)
+else if (mul_busy_q)
     ready_q <= 1'b1;
 else if (div_complete_w)
     ready_q <= 1'b1;
@@ -225,8 +237,8 @@ if (rst_i)
     result_q <= 32'b0;
 else if (div_complete_w)
     result_q <= div_result_r;
-else
-    result_q <= mult_result_q;
+else if (mul_busy_q)
+    result_q <= mul_result_r;
 
 assign result_o  = result_q;
 assign ready_o   = ready_q;
